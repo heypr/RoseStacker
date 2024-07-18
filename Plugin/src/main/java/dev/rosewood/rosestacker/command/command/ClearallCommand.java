@@ -27,16 +27,16 @@ public class ClearallCommand extends BaseRoseCommand {
         switch (type) {
             case ENTITY -> {
                 amount = stackManager.removeAllEntityStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-entities", StringPlaceholders.of("amount", StackerUtils.formatNumber(amount)));
+                localeManager.sendCommandMessage(context.getSender(), "command-clearall-killed-entities", StringPlaceholders.of("amount", StackerUtils.formatNumber(amount)));
             }
             case ITEM -> {
                 amount = stackManager.removeAllItemStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-items", StringPlaceholders.of("amount", StackerUtils.formatNumber(amount)));
+                localeManager.sendCommandMessage(context.getSender(), "command-clearall-killed-items", StringPlaceholders.of("amount", StackerUtils.formatNumber(amount)));
             }
             case ALL -> {
                 int entities = stackManager.removeAllEntityStacks();
                 int items = stackManager.removeAllItemStacks();
-                localeManager.sendMessage(context.getSender(), "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", StackerUtils.formatNumber(entities)).add("itemAmount", StackerUtils.formatNumber(items)).build());
+                localeManager.sendCommandMessage(context.getSender(), "command-clearall-killed-all", StringPlaceholders.builder("entityAmount", StackerUtils.formatNumber(entities)).add("itemAmount", StackerUtils.formatNumber(items)).build());
             }
         }
     }
@@ -46,13 +46,9 @@ public class ClearallCommand extends BaseRoseCommand {
         return CommandInfo.builder("clearall")
                 .descriptionKey("command-clearall-description")
                 .permission("rosestacker.clearall")
-                .build();
-    }
-
-    @Override
-    protected ArgumentsDefinition createArgumentsDefinition() {
-        return ArgumentsDefinition.builder()
-                .required("type", ArgumentHandlers.forEnum(ClearallType.class))
+                .arguments(ArgumentsDefinition.builder()
+                        .required("type", ArgumentHandlers.forEnum(ClearallType.class))
+                        .build())
                 .build();
     }
 

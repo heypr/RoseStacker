@@ -22,7 +22,6 @@ import dev.rosewood.rosestacker.utils.ThreadUtils;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -162,10 +161,8 @@ public class BlockListener implements Listener {
                     stackedSpawner.increaseStackSize(-breakAmount);
                 }
 
-                if (stackedSpawner.getStackSize() <= 0) {
+                if (stackedSpawner.getStackSize() <= 0)
                     stackManager.removeSpawnerStack(stackedSpawner);
-                    return;
-                }
             } else {
                 event.setCancelled(true);
                 return;
@@ -227,7 +224,7 @@ public class BlockListener implements Listener {
 
     private void damageTool(Player player) {
         ItemStack itemStack = player.getInventory().getItemInMainHand();
-        if (!itemStack.getType().name().endsWith("PICKAXE"))
+        if (player.getGameMode() == GameMode.CREATIVE || !itemStack.getType().name().endsWith("PICKAXE"))
             return;
 
         ItemUtils.damageTool(itemStack);
