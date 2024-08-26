@@ -1,7 +1,7 @@
 package dev.rosewood.rosestacker.listener;
 
 import dev.rosewood.rosegarden.RosePlugin;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -48,8 +48,9 @@ public class InteractListener implements Listener {
         if (item == null || event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
             return;
 
+        Player player = event.getPlayer();
         StackManager stackManager = this.rosePlugin.getManager(StackManager.class);
-        if (stackManager.isWorldDisabled(event.getPlayer().getWorld()))
+        if (stackManager.isWorldDisabled(player.getWorld()))
             return;
 
         // Handle spawner conversion before we try to spawn entities
@@ -64,7 +65,12 @@ public class InteractListener implements Listener {
                 return;
             }
 
-            if (!event.getPlayer().hasPermission("rosestacker.spawnerconvert")) {
+            EntityType entityType = stackSettings.getEntityType();
+            String permissionRequired = "rosestacker.spawnerconvert";
+            if (SettingKey.SPAWNER_CONVERT_ADVANCED_PERMISSIONS.get())
+                permissionRequired += "." + entityType.getKey().getKey();
+
+            if (!player.hasPermission(permissionRequired)) {
                 event.setCancelled(true);
                 return;
             }
@@ -73,20 +79,20 @@ public class InteractListener implements Listener {
             if (stackedSpawner == null) // Let vanilla handle the interaction instead
                 return;
 
-            SpawnerType newType = SpawnerType.of(stackSettings.getEntityType());
+            SpawnerType newType = SpawnerType.of(entityType);
             if (newType.equals(stackedSpawner.getSpawnerTile().getSpawnerType())) {
                 // Don't allow converting spawners if it's the exact same type... that just wastes spawn eggs
                 event.setCancelled(true);
                 return;
             }
 
-            boolean consumesItems = event.getPlayer().getGameMode() != GameMode.CREATIVE;
-            boolean consumesMultipleItems = Setting.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.getBoolean();
+            boolean consumesItems = player.getGameMode() != GameMode.CREATIVE;
+            boolean consumesMultipleItems = SettingKey.SPAWNER_CONVERT_REQUIRE_SAME_AMOUNT.get();
             if (consumesMultipleItems
                     && item.getAmount() < stackedSpawner.getStackSize()
                     && consumesItems) {
                 event.setCancelled(true);
-                this.rosePlugin.getManager(LocaleManager.class).sendMessage(event.getPlayer(), "spawner-convert-not-enough");
+                this.rosePlugin.getManager(LocaleManager.class).sendMessage(player, "spawner-convert-not-enough");
                 return;
             }
 
