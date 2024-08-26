@@ -46,12 +46,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
+
+import org.bukkit.*;
 import org.bukkit.Particle.DustOptions;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.ArmorStand;
@@ -932,6 +929,12 @@ public class StackingThread implements StackingLogic, AutoCloseable {
 
         if (!WorldGuardHook.testLocation(entity.getLocation()))
             return;
+
+        NamespacedKey key = new NamespacedKey("ultracosmetics", "iscosmetic");
+        if (entity.getPersistentDataContainer().has(key)) {
+            this.removeEntityStack(stackedEntity);
+            return;
+        }
 
         Collection<Entity> nearbyEntities;
         Predicate<Entity> predicate = x -> x.getType() == entity.getType();

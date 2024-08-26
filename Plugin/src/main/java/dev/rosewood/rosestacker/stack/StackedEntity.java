@@ -519,7 +519,6 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
         if (this.getStackSize() > 1 || SettingKey.ENTITY_DISPLAY_TAGS_SINGLE.get()) {
             String displayString;
             StringPlaceholders.Builder placeholders = StringPlaceholders.builder("amount", StackerUtils.formatNumber(this.getStackSize()));
-            NPCsHook.addCustomPlaceholders(this.entity, placeholders);
 
             if (customName != null && SettingKey.ENTITY_DISPLAY_TAGS_CUSTOM_NAME.get()) {
                 placeholders.add("name", customName);
@@ -631,7 +630,7 @@ public class StackedEntity extends Stack<EntityStackSettings> implements Compara
                 ((MagmaCube) this.entity).setSize(1); // Make sure it doesn't split
         } else if (SettingKey.ENTITY_DROP_ACCURATE_EXP.get()) {
             if (event == null) {
-                EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
+//                EntitySpawnUtil.spawn(this.entity.getLocation(), ExperienceOrb.class, x -> x.setExperience(experience));
             } else {
                 event.setDroppedExp(experience * this.getStackSize());
             }
