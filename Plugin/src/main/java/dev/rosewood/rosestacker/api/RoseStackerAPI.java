@@ -1,10 +1,11 @@
 package dev.rosewood.rosestacker.api;
 
 import com.google.common.base.Preconditions;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosestacker.RoseStacker;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent;
 import dev.rosewood.rosestacker.event.EntityStackMultipleDeathEvent.EntityDrops;
-import dev.rosewood.rosestacker.manager.ConfigurationManager.Setting;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
 import dev.rosewood.rosestacker.stack.StackedBlock;
@@ -50,13 +51,9 @@ public final class RoseStackerAPI {
     private static RoseStackerAPI instance;
 
     private final RoseStacker roseStacker;
-    private final StackManager stackManager;
-    private final StackSettingManager stackSettingManager;
 
     private RoseStackerAPI() {
         this.roseStacker = RoseStacker.getInstance();
-        this.stackManager = this.roseStacker.getManager(StackManager.class);
-        this.stackSettingManager = this.roseStacker.getManager(StackSettingManager.class);
     }
 
     /**
@@ -81,7 +78,7 @@ public final class RoseStackerAPI {
      * @return true if {@link EntityStackMultipleDeathEvent} is called
      */
     public boolean isEntityStackMultipleDeathEventCalled() {
-        return !Setting.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.getBoolean();
+        return !SettingKey.ENTITY_TRIGGER_DEATH_EVENT_FOR_ENTIRE_STACK_KILL.get();
     }
 
     //region Stack Manager
@@ -96,7 +93,7 @@ public final class RoseStackerAPI {
     public StackingThread getStackingThread(@NotNull World world) {
         Objects.requireNonNull(world);
 
-        return this.stackManager.getStackingThread(world);
+        return this.roseStacker.getManager(StackManager.class).getStackingThread(world);
     }
 
     /**
@@ -104,7 +101,7 @@ public final class RoseStackerAPI {
      */
     @NotNull
     public Map<UUID, StackingThread> getStackingThreads() {
-        return Collections.unmodifiableMap(this.stackManager.getStackingThreads());
+        return Collections.unmodifiableMap(this.roseStacker.getManager(StackManager.class).getStackingThreads());
     }
 
     /**
@@ -112,7 +109,7 @@ public final class RoseStackerAPI {
      */
     @NotNull
     public Map<UUID, StackedEntity> getStackedEntities() {
-        return Collections.unmodifiableMap(this.stackManager.getStackedEntities());
+        return Collections.unmodifiableMap(this.roseStacker.getManager(StackManager.class).getStackedEntities());
     }
 
     /**
@@ -120,7 +117,7 @@ public final class RoseStackerAPI {
      */
     @NotNull
     public Map<UUID, StackedItem> getStackedItems() {
-        return Collections.unmodifiableMap(this.stackManager.getStackedItems());
+        return Collections.unmodifiableMap(this.roseStacker.getManager(StackManager.class).getStackedItems());
     }
 
     /**
@@ -128,7 +125,7 @@ public final class RoseStackerAPI {
      */
     @NotNull
     public Map<Block, StackedBlock> getStackedBlocks() {
-        return Collections.unmodifiableMap(this.stackManager.getStackedBlocks());
+        return Collections.unmodifiableMap(this.roseStacker.getManager(StackManager.class).getStackedBlocks());
     }
 
     /**
@@ -136,7 +133,7 @@ public final class RoseStackerAPI {
      */
     @NotNull
     public Map<Block, StackedSpawner> getStackedSpawners() {
-        return Collections.unmodifiableMap(this.stackManager.getStackedSpawners());
+        return Collections.unmodifiableMap(this.roseStacker.getManager(StackManager.class).getStackedSpawners());
     }
 
     /**
@@ -149,7 +146,7 @@ public final class RoseStackerAPI {
     public StackedEntity getStackedEntity(@NotNull LivingEntity livingEntity) {
         Objects.requireNonNull(livingEntity);
 
-        return this.stackManager.getStackedEntity(livingEntity);
+        return this.roseStacker.getManager(StackManager.class).getStackedEntity(livingEntity);
     }
 
     /**
@@ -162,7 +159,7 @@ public final class RoseStackerAPI {
     public StackedItem getStackedItem(@NotNull Item item) {
         Objects.requireNonNull(item);
 
-        return this.stackManager.getStackedItem(item);
+        return this.roseStacker.getManager(StackManager.class).getStackedItem(item);
     }
 
     /**
@@ -175,7 +172,7 @@ public final class RoseStackerAPI {
     public StackedBlock getStackedBlock(@NotNull Block block) {
         Objects.requireNonNull(block);
 
-        return this.stackManager.getStackedBlock(block);
+        return this.roseStacker.getManager(StackManager.class).getStackedBlock(block);
     }
 
     /**
@@ -188,7 +185,7 @@ public final class RoseStackerAPI {
     public StackedSpawner getStackedSpawner(@NotNull Block block) {
         Objects.requireNonNull(block);
 
-        return this.stackManager.getStackedSpawner(block);
+        return this.roseStacker.getManager(StackManager.class).getStackedSpawner(block);
     }
 
     /**
@@ -200,7 +197,7 @@ public final class RoseStackerAPI {
     public boolean isEntityStacked(@NotNull LivingEntity livingEntity) {
         Objects.requireNonNull(livingEntity);
 
-        return this.stackManager.isEntityStacked(livingEntity);
+        return this.roseStacker.getManager(StackManager.class).isEntityStacked(livingEntity);
     }
 
     /**
@@ -212,7 +209,7 @@ public final class RoseStackerAPI {
     public boolean isItemStacked(@NotNull Item item) {
         Objects.requireNonNull(item);
 
-        return this.stackManager.isItemStacked(item);
+        return this.roseStacker.getManager(StackManager.class).isItemStacked(item);
     }
 
     /**
@@ -224,7 +221,7 @@ public final class RoseStackerAPI {
     public boolean isBlockStacked(@NotNull Block block) {
         Objects.requireNonNull(block);
 
-        return this.stackManager.isBlockStacked(block);
+        return this.roseStacker.getManager(StackManager.class).isBlockStacked(block);
     }
 
     /**
@@ -236,7 +233,7 @@ public final class RoseStackerAPI {
     public boolean isSpawnerStacked(@NotNull Block block) {
         Objects.requireNonNull(block);
 
-        return this.stackManager.isSpawnerStacked(block);
+        return this.roseStacker.getManager(StackManager.class).isSpawnerStacked(block);
     }
 
     /**
@@ -247,7 +244,7 @@ public final class RoseStackerAPI {
     public void removeEntityStack(@NotNull StackedEntity stackedEntity) {
         Objects.requireNonNull(stackedEntity);
 
-        this.stackManager.removeEntityStack(stackedEntity);
+        this.roseStacker.getManager(StackManager.class).removeEntityStack(stackedEntity);
     }
 
     /**
@@ -258,7 +255,7 @@ public final class RoseStackerAPI {
     public void removeItemStack(@NotNull StackedItem stackedItem) {
         Objects.requireNonNull(stackedItem);
 
-        this.stackManager.removeItemStack(stackedItem);
+        this.roseStacker.getManager(StackManager.class).removeItemStack(stackedItem);
     }
 
     /**
@@ -269,7 +266,7 @@ public final class RoseStackerAPI {
     public void removeBlockStack(@NotNull StackedBlock stackedBlock) {
         Objects.requireNonNull(stackedBlock);
 
-        this.stackManager.removeBlockStack(stackedBlock);
+        this.roseStacker.getManager(StackManager.class).removeBlockStack(stackedBlock);
     }
 
     /**
@@ -280,7 +277,7 @@ public final class RoseStackerAPI {
     public void removeSpawnerStack(@NotNull StackedSpawner stackedSpawner) {
         Objects.requireNonNull(stackedSpawner);
 
-        this.stackManager.removeSpawnerStack(stackedSpawner);
+        this.roseStacker.getManager(StackManager.class).removeSpawnerStack(stackedSpawner);
     }
 
     /**
@@ -289,7 +286,7 @@ public final class RoseStackerAPI {
      * @return the number of entities removed
      */
     public int removeAllEntityStacks() {
-        return this.stackManager.removeAllEntityStacks();
+        return this.roseStacker.getManager(StackManager.class).removeAllEntityStacks();
     }
 
     /**
@@ -298,7 +295,7 @@ public final class RoseStackerAPI {
      * @return the number of items removed
      */
     public int removeAllItemStacks() {
-        return this.stackManager.removeAllItemStacks();
+        return this.roseStacker.getManager(StackManager.class).removeAllItemStacks();
     }
 
     /**
@@ -312,7 +309,7 @@ public final class RoseStackerAPI {
     public StackedEntity createEntityStack(@NotNull LivingEntity livingEntity, boolean tryStack) {
         Objects.requireNonNull(livingEntity);
 
-        return this.stackManager.createEntityStack(livingEntity, tryStack);
+        return this.roseStacker.getManager(StackManager.class).createEntityStack(livingEntity, tryStack);
     }
 
     /**
@@ -326,7 +323,7 @@ public final class RoseStackerAPI {
     public StackedItem createItemStack(@NotNull Item item, boolean tryStack) {
         Objects.requireNonNull(item);
 
-        return this.stackManager.createItemStack(item, tryStack);
+        return this.roseStacker.getManager(StackManager.class).createItemStack(item, tryStack);
     }
 
     /**
@@ -340,7 +337,7 @@ public final class RoseStackerAPI {
     public StackedBlock createBlockStack(@NotNull Block block, int amount) {
         Objects.requireNonNull(block);
 
-        return this.stackManager.createBlockStack(block, amount);
+        return this.roseStacker.getManager(StackManager.class).createBlockStack(block, amount);
     }
 
     /**
@@ -355,7 +352,7 @@ public final class RoseStackerAPI {
     public StackedSpawner createSpawnerStack(@NotNull Block block, int amount, boolean placedByPlayer) {
         Objects.requireNonNull(block);
 
-        return this.stackManager.createSpawnerStack(block, amount, placedByPlayer);
+        return this.roseStacker.getManager(StackManager.class).createSpawnerStack(block, amount, placedByPlayer);
     }
 
     /**
@@ -383,7 +380,7 @@ public final class RoseStackerAPI {
         Objects.requireNonNull(location);
         Objects.requireNonNull(spawnReason);
 
-        this.stackManager.preStackEntities(entityType, amount, location, spawnReason);
+        this.roseStacker.getManager(StackManager.class).preStackEntities(entityType, amount, location, spawnReason);
     }
 
     /**
@@ -397,7 +394,7 @@ public final class RoseStackerAPI {
         Objects.requireNonNull(entityType);
         Objects.requireNonNull(location);
 
-        this.stackManager.preStackEntities(entityType, amount, location);
+        this.roseStacker.getManager(StackManager.class).preStackEntities(entityType, amount, location);
     }
 
     /**
@@ -409,7 +406,7 @@ public final class RoseStackerAPI {
     public void preStackItems(@NotNull Collection<ItemStack> items, Location location) {
         Objects.requireNonNull(items);
 
-        this.stackManager.preStackItems(items, location);
+        this.roseStacker.getManager(StackManager.class).preStackItems(items, location);
     }
 
     /**
@@ -426,7 +423,7 @@ public final class RoseStackerAPI {
         Objects.requireNonNull(itemStack);
         Objects.requireNonNull(location);
 
-        return this.stackManager.dropItemStack(itemStack, amount, location, dropNaturally);
+        return this.roseStacker.getManager(StackManager.class).dropItemStack(itemStack, amount, location, dropNaturally);
     }
 
     //endregion
@@ -456,7 +453,7 @@ public final class RoseStackerAPI {
     public EntityStackSettings getEntityStackSettings(@NotNull EntityType entityType) {
         Objects.requireNonNull(entityType);
 
-        return this.stackSettingManager.getEntityStackSettings(entityType);
+        return this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(entityType);
     }
 
     /**
@@ -469,7 +466,7 @@ public final class RoseStackerAPI {
     public EntityStackSettings getEntityStackSettings(@NotNull Material material) {
         Objects.requireNonNull(material);
 
-        return this.stackSettingManager.getEntityStackSettings(material);
+        return this.roseStacker.getManager(StackSettingManager.class).getEntityStackSettings(material);
     }
 
     /**
@@ -495,7 +492,7 @@ public final class RoseStackerAPI {
     public ItemStackSettings getItemStackSettings(@NotNull Material material) {
         Objects.requireNonNull(material);
 
-        return this.stackSettingManager.getItemStackSettings(material);
+        return this.roseStacker.getManager(StackSettingManager.class).getItemStackSettings(material);
     }
 
     /**
@@ -521,7 +518,7 @@ public final class RoseStackerAPI {
     public BlockStackSettings getBlockStackSettings(@NotNull Material material) {
         Objects.requireNonNull(material);
 
-        return this.stackSettingManager.getBlockStackSettings(material);
+        return this.roseStacker.getManager(StackSettingManager.class).getBlockStackSettings(material);
     }
 
     /**
@@ -534,7 +531,7 @@ public final class RoseStackerAPI {
     public SpawnerStackSettings getSpawnerStackSettings(@NotNull CreatureSpawner creatureSpawner) {
         Objects.requireNonNull(creatureSpawner);
 
-        return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
+        return this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(creatureSpawner);
     }
 
     /**
@@ -547,7 +544,7 @@ public final class RoseStackerAPI {
     public SpawnerStackSettings getSpawnerStackSettings(@NotNull EntityType entityType) {
         Objects.requireNonNull(entityType);
 
-        return this.stackSettingManager.getSpawnerStackSettings(entityType);
+        return this.roseStacker.getManager(StackSettingManager.class).getSpawnerStackSettings(entityType);
     }
 
     //endregion
@@ -624,7 +621,7 @@ public final class RoseStackerAPI {
     public List<StackedEntity> getStackedEntities(@NotNull Collection<Chunk> chunks) {
         Objects.requireNonNull(chunks);
 
-        return this.stackManager.getStackedEntities().values().stream()
+        return this.roseStacker.getManager(StackManager.class).getStackedEntities().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
                 .toList();
     }
@@ -639,7 +636,7 @@ public final class RoseStackerAPI {
     public List<StackedItem> getStackedItems(@NotNull Collection<Chunk> chunks) {
         Objects.requireNonNull(chunks);
 
-        return this.stackManager.getStackedItems().values().stream()
+        return this.roseStacker.getManager(StackManager.class).getStackedItems().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
                 .toList();
     }
@@ -654,7 +651,7 @@ public final class RoseStackerAPI {
     public List<StackedBlock> getStackedBlocks(@NotNull Collection<Chunk> chunks) {
         Objects.requireNonNull(chunks);
 
-        return this.stackManager.getStackedBlocks().values().stream()
+        return this.roseStacker.getManager(StackManager.class).getStackedBlocks().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
                 .toList();
     }
@@ -669,7 +666,7 @@ public final class RoseStackerAPI {
     public List<StackedSpawner> getStackedSpawners(@NotNull Collection<Chunk> chunks) {
         Objects.requireNonNull(chunks);
 
-        return this.stackManager.getStackedSpawners().values().stream()
+        return this.roseStacker.getManager(StackManager.class).getStackedSpawners().values().stream()
                 .filter(x -> chunks.contains(x.getLocation().getChunk()))
                 .toList();
     }

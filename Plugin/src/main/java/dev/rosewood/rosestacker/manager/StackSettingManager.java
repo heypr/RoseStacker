@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import dev.rosewood.rosegarden.RosePlugin;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.config.CommentedFileConfiguration;
 import dev.rosewood.rosegarden.manager.Manager;
 import dev.rosewood.rosestacker.nms.NMSAdapter;
@@ -47,7 +48,7 @@ public class StackSettingManager extends Manager {
     private final Map<Material, ItemStackSettings> itemSettings;
     private final Map<SpawnerType, SpawnerStackSettings> spawnerSettings;
 
-    private boolean registeredPermissions = false;
+    private static boolean registeredPermissions = false;
 
     public StackSettingManager(RosePlugin rosePlugin) {
         super(rosePlugin);
@@ -178,18 +179,20 @@ public class StackSettingManager extends Manager {
             spawnerSettingsConfiguration.save(spawnerSettingsFile, true);
 
         // Register dynamic permissions on first load
-        if (!this.registeredPermissions) {
+        if (!registeredPermissions) {
             PluginManager pluginManager = Bukkit.getPluginManager();
 
             List<Permission> silktouch = new ArrayList<>();
             List<Permission> nosilk = new ArrayList<>();
             List<Permission> spawnerplace = new ArrayList<>();
+            List<Permission> spawnerconvert = new ArrayList<>();
 
             for (EntityType entityType : this.entitySettings.keySet()) {
-                String type = entityType.name().toLowerCase();
+                String type = entityType.getKey().getKey();
                 silktouch.add(new Permission("rosestacker.silktouch." + type));
                 nosilk.add(new Permission("rosestacker.nosilk." + type));
                 spawnerplace.add(new Permission("rosestacker.spawnerplace." + type));
+                spawnerconvert.add(new Permission("rosestacker.spawnerconvert." + type));
             }
 
             // Register silktouch permissions
@@ -204,7 +207,11 @@ public class StackSettingManager extends Manager {
             spawnerplace.forEach(pluginManager::addPermission);
             pluginManager.addPermission(new Permission("rosestacker.spawnerplace.*", spawnerplace.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
 
-            this.registeredPermissions = true;
+            // Register spawnerconvert permissions
+            spawnerconvert.forEach(pluginManager::addPermission);
+            pluginManager.addPermission(new Permission("rosestacker.spawnerconvert.*", spawnerconvert.stream().collect(Collectors.toMap(Permission::getName, x -> true))));
+
+            registeredPermissions = true;
         }
     }
 
@@ -336,7 +343,7 @@ public class StackSettingManager extends Manager {
      * @return The SpawnerStackSettings for the spawner
      */
     public SpawnerStackSettings getSpawnerStackSettings(CreatureSpawner creatureSpawner) {
-        return this.getSpawnerStackSettings(creatureSpawner.getSpawnedType());
+        return this.getSpawnerStackSettings(CompatibilityAdapter.getCreatureSpawnerHandler().getSpawnedType(creatureSpawner));
     }
 
     public Set<EntityType> getStackableEntityTypes() {

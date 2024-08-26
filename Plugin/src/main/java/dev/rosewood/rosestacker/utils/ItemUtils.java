@@ -2,11 +2,12 @@ package dev.rosewood.rosestacker.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import dev.rosewood.rosegarden.compatibility.CompatibilityAdapter;
 import dev.rosewood.rosegarden.utils.HexUtils;
 import dev.rosewood.rosegarden.utils.NMSUtil;
 import dev.rosewood.rosegarden.utils.StringPlaceholders;
 import dev.rosewood.rosestacker.RoseStacker;
-import dev.rosewood.rosestacker.manager.ConfigurationManager;
+import dev.rosewood.rosestacker.config.SettingKey;
 import dev.rosewood.rosestacker.manager.LocaleManager;
 import dev.rosewood.rosestacker.manager.StackManager;
 import dev.rosewood.rosestacker.manager.StackSettingManager;
@@ -209,7 +210,7 @@ public final class ItemUtils {
 
         itemMeta.setDisplayName(displayString);
 
-        if (ConfigurationManager.Setting.SPAWNER_HIDE_VANILLA_ITEM_LORE.getBoolean())
+        if (SettingKey.SPAWNER_HIDE_VANILLA_ITEM_LORE.get())
             itemMeta.addItemFlags(VersionUtils.HIDE_ADDITIONAL_TOOLTIP);
 
         // Set the lore
@@ -224,7 +225,7 @@ public final class ItemUtils {
         }
 
         List<String> lore = new ArrayList<>(globalLore.size() + typeLore.size());
-        if (ConfigurationManager.Setting.MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST.getBoolean()) {
+        if (SettingKey.MISC_SPAWNER_LORE_DISPLAY_GLOBAL_LORE_FIRST.get()) {
             lore.addAll(globalLore);
             lore.addAll(typeLore);
         } else {
@@ -239,7 +240,7 @@ public final class ItemUtils {
             // Set the spawned type directly onto the spawner item for hopeful compatibility with other plugins
             BlockStateMeta blockStateMeta = (BlockStateMeta) itemMeta;
             CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
-            creatureSpawner.setSpawnedType(spawnerType.getOrThrow());
+            CompatibilityAdapter.getCreatureSpawnerHandler().setSpawnedType(creatureSpawner, spawnerType.getOrThrow());
             blockStateMeta.setBlockState(creatureSpawner);
         }
 
@@ -304,7 +305,7 @@ public final class ItemUtils {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (itemMeta instanceof BlockStateMeta blockStateMeta && blockStateMeta.hasBlockState()) {
             CreatureSpawner creatureSpawner = (CreatureSpawner) blockStateMeta.getBlockState();
-            return creatureSpawner.getSpawnedType();
+            return CompatibilityAdapter.getCreatureSpawnerHandler().getSpawnedType(creatureSpawner);
         }
 
         // Try formats from other plugins/servers
@@ -337,6 +338,10 @@ public final class ItemUtils {
                         return EntityType.valueOf(entityTypeName);
             } catch (Exception ignored) { }
         }
+
+        // Check if we're allowing name and lore checks
+        if (!SettingKey.SPAWNER_ITEM_CHECK_DISPLAY_NAME.get())
+            return null;
 
         // Use the name to determine the type, must be colored
         String name = ChatColor.stripColor(itemMeta.getDisplayName());
@@ -383,14 +388,14 @@ public final class ItemUtils {
         if (cachedStackingTool != null)
             return cachedStackingTool;
 
-        Material material = Material.matchMaterial(ConfigurationManager.Setting.STACK_TOOL_MATERIAL.getString());
+        Material material = Material.matchMaterial(SettingKey.STACK_TOOL_MATERIAL.get());
         if (material == null) {
             material = Material.STICK;
             RoseStacker.getInstance().getLogger().warning("Invalid material for stacking tool in config.yml!");
         }
 
-        String name = HexUtils.colorify(ConfigurationManager.Setting.STACK_TOOL_NAME.getString());
-        List<String> lore = ConfigurationManager.Setting.STACK_TOOL_LORE.getStringList().stream().map(HexUtils::colorify).toList();
+        String name = HexUtils.colorify(SettingKey.STACK_TOOL_NAME.get());
+        List<String> lore = SettingKey.STACK_TOOL_LORE.get().stream().map(HexUtils::colorify).toList();
 
         ItemStack item = new ItemStack(material);
         ItemMeta meta = item.getItemMeta();
